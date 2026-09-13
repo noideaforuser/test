@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASTRA — Space Explorer</title>
+<style>
+:root{
+  --bg:#050712;--panel:rgba(14,18,35,.72);--panel2:rgba(20,25,47,.8);
+  --line:rgba(255,255,255,.09);--text:#f5f7ff;--muted:#8e98b8;
+  --accent:#8b7cff;--accent2:#36d9ff;--good:#52e0a2;--danger:#ff6d8d;
+  --shadow:0 24px 80px rgba(0,0,0,.42);--radius:24px;
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}
+body{overflow-x:hidden}
+button,input{font:inherit}button{cursor:pointer}
+#space{position:fixed;inset:0;z-index:-2;background:
+ radial-gradient(circle at 75% 18%,rgba(54,217,255,.12),transparent 25%),
+ radial-gradient(circle at 25% 70%,rgba(139,124,255,.14),transparent 30%),
+ #050712}
+#stars{position:fixed;inset:0;z-index:-1;opacity:.85}
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.sidebar{border-right:1px solid var(--line);background:rgba(5,7,18,.62);backdrop-filter:blur(24px);padding:24px 16px;position:sticky;top:0;height:100vh}
+.logo{display:flex;align-items:center;gap:12px;padding:8px 10px 28px;font-weight:900;letter-spacing:.12em}
+.logo-mark{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 30px rgba(93,145,255,.35)}
+.logo-mark:before{content:"✦";color:white;font-size:20px}
+.nav{display:grid;gap:7px}.nav button{border:0;background:transparent;color:var(--muted);padding:13px 14px;border-radius:14px;text-align:left;display:flex;gap:12px;align-items:center;transition:.2s}
+.nav button:hover,.nav button.active{color:var(--text);background:rgba(255,255,255,.065)}
+.nav button.active{box-shadow:inset 3px 0 var(--accent)}
+.side-bottom{position:absolute;bottom:20px;left:16px;right:16px}
+.mini-card{padding:15px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.035)}
+.mini-card small{color:var(--muted)}
+.progress{height:6px;background:rgba(255,255,255,.08);border-radius:9px;overflow:hidden;margin-top:10px}
+.progress i{display:block;height:100%;width:35%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+main{padding:26px 32px 60px;max-width:1500px;width:100%;margin:auto}
+.topbar{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+.search{flex:1;position:relative}.search input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 18px 14px 44px;color:var(--text);outline:none;box-shadow:var(--shadow)}
+.search span{position:absolute;left:16px;top:12px;color:var(--muted)}
+.icon-btn{width:46px;height:46px;border:1px solid var(--line);border-radius:15px;background:var(--panel);color:var(--text);transition:.2s}
+.icon-btn:hover{transform:translateY(-2px);border-color:rgba(139,124,255,.5)}
+.avatar{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#2d355f,#15192d);display:grid;place-items:center;font-weight:800;border:1px solid var(--line)}
+.hero{display:grid;grid-template-columns:1.35fr .65fr;gap:20px}
+.hero-card{min-height:390px;border:1px solid var(--line);border-radius:30px;background:linear-gradient(135deg,rgba(23,28,54,.88),rgba(10,13,27,.72));box-shadow:var(--shadow);padding:34px;position:relative;overflow:hidden}
+.hero-card:after{content:"";position:absolute;width:340px;height:340px;border-radius:50%;right:-100px;top:-110px;background:radial-gradient(circle at 35% 35%,#c7f6ff 0 3%,#36d9ff 8%,#4450cc 30%,#10132b 67%,transparent 68%);filter:drop-shadow(0 0 50px rgba(54,217,255,.35));opacity:.9}
+.eyebrow{color:var(--accent2);font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+h1{font-size:clamp(38px,5vw,68px);line-height:.98;margin:15px 0;max-width:680px;letter-spacing:-.05em}
+.hero p{color:var(--muted);max-width:610px;font-size:16px;line-height:1.7}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:25px}
+.btn{border:1px solid var(--line);background:rgba(255,255,255,.055);color:var(--text);border-radius:13px;padding:12px 17px;font-weight:750;transition:.2s}
+.btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.09)}
+.btn.primary{border:0;background:linear-gradient(135deg,var(--accent),#6257e9);box-shadow:0 10px 30px rgba(115,99,255,.25)}
+.btn.good{border-color:rgba(82,224,162,.3);color:var(--good)}
+.side-hero{display:grid;gap:20px}.metric{border:1px solid var(--line);background:var(--panel);border-radius:24px;padding:24px;box-shadow:var(--shadow)}
+.metric .big{font-size:38px;font-weight:900;margin:8px 0}.metric p{color:var(--muted);margin:0}
+.section{margin-top:25px}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.section-head h2{margin:0;font-size:18px}.muted{color:var(--muted)}
+.chips{display:flex;gap:8px;overflow:auto;padding-bottom:5px}.chip{border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);padding:9px 13px;border-radius:999px;white-space:nowrap}.chip.active,.chip:hover{color:var(--text);border-color:rgba(139,124,255,.5);background:rgba(139,124,255,.12)}
+.fact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.fact{border:1px solid var(--line);background:var(--panel);border-radius:22px;padding:20px;min-height:190px;transition:.25s;position:relative}.fact:hover{transform:translateY(-4px);border-color:rgba(139,124,255,.3)}.fact .tag{font-size:11px;color:var(--accent2);text-transform:uppercase;font-weight:800;letter-spacing:.12em}.fact h3{font-size:18px;margin:10px 0}.fact p{color:var(--muted);line-height:1.6;font-size:14px}.fact .heart{position:absolute;right:15px;top:15px;background:none;border:0;color:#67708d;font-size:18px}.fact .heart.saved{color:#ff6d9d}
+.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{border:1px solid var(--line);background:var(--panel);border-radius:22px;padding:22px}.stat-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}.stat-row:last-child{border:0}.achievement{display:flex;align-items:center;gap:12px;margin-top:14px}.badge{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:rgba(139,124,255,.12);border:1px solid rgba(139,124,255,.2)}
+.view{display:none}.view.active{display:block}
+.empty{text-align:center;padding:55px 20px;color:var(--muted);border:1px dashed var(--line);border-radius:22px}
+.toast{position:fixed;right:25px;bottom:25px;background:#11162a;border:1px solid var(--line);box-shadow:var(--shadow);padding:13px 17px;border-radius:14px;opacity:0;transform:translateY(15px);pointer-events:none;transition:.25s;z-index:10}.toast.show{opacity:1;transform:none}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}.modal.open{display:flex}.modal-box{width:min(560px,100%);background:#0e1223;border:1px solid var(--line);border-radius:25px;padding:25px;box-shadow:var(--shadow)}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-box h2{margin:0}.setting{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid var(--line)}.switch{width:48px;height:27px;border-radius:20px;background:#272d46;padding:3px;border:0}.switch i{display:block;width:21px;height:21px;background:white;border-radius:50%;transition:.2s}.switch.on{background:var(--accent)}.switch.on i{transform:translateX(21px)}
+@media(max-width:1000px){.app{grid-template-columns:78px 1fr}.sidebar{padding:20px 10px}.logo{justify-content:center;padding-bottom:25px}.logo span,.nav button b,.mini-card{display:none}.nav button{justify-content:center}.side-bottom{left:10px;right:10px}.hero{grid-template-columns:1fr}.fact-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.app{display:block}.sidebar{position:fixed;bottom:0;top:auto;height:70px;width:100%;z-index:15;border-right:0;border-top:1px solid var(--line);padding:7px;background:rgba(5,7,18,.9)}.logo,.side-bottom{display:none}.nav{display:flex;justify-content:space-around}.nav button{padding:11px 13px}.nav button b{display:none}.nav button.active{box-shadow:inset 0 -3px var(--accent)}main{padding:17px 15px 90px}.topbar{gap:8px}.avatar{display:none}.hero-card{padding:24px;min-height:420px}.hero-card:after{width:220px;height:220px;right:-80px}.fact-grid,.dashboard{grid-template-columns:1fr}.metric{padding:18px}.hero h1{font-size:43px}}
+</style>
+</head>
+<body>
+<div id="space"></div><canvas id="stars"></canvas>
+<div class="app">
+<aside class="sidebar">
+  <div class="logo"><div class="logo-mark"></div><span>ASTRA</span></div>
+  <nav class="nav">
+    <button class="active" data-view="home">◈ <b>Overview</b></button>
+    <button data-view="discover">✦ <b>Discover</b></button>
+    <button data-view="favorites">♡ <b>Favorites</b></button>
+    <button data-view="history">↺ <b>History</b></button>
+    <button data-view="stats">◫ <b>My Stats</b></button>
+  </nav>
+  <div class="side-bottom"><div class="mini-card"><small>Explorer level</small><strong style="display:block;margin-top:5px">Novice • 35%</strong><div class="progress"><i></i></div></div></div>
+</aside>
+
+<main>
+  <header class="topbar">
+    <div class="search"><span>⌕</span><input id="search" placeholder="Search the universe..."></div>
+    <button class="icon-btn" id="theme" title="Toggle theme">☼</button>
+    <button class="icon-btn" id="settings" title="Settings">⚙</button>
+    <div class="avatar">A</div>
+  </header>
+
+  <section id="home" class="view active">
+    <div class="hero">
+      <article class="hero-card">
+        <div class="eyebrow">Daily transmission • <span id="date"></span></div>
+        <h1 id="heroTitle">The universe is waiting.</h1>
+        <p id="heroText">Every discovery is a tiny window into something unimaginably large. Explore a fact, save the ones that fascinate you, and build your own cosmic archive.</p>
+        <div class="actions">
+          <button class="btn primary" id="discoverBtn">✦ Discover something</button>
+          <button class="btn" id="saveDaily">♡ Save fact</button>
+          <button class="btn" id="shareDaily">↗ Share</button>
+        </div>
+      </article>
+      <div class="side-hero">
+        <div class="metric"><div class="muted">Discoveries</div><div class="big" id="count">0</div><p>facts explored</p></div>
+        <div class="metric"><div class="muted">Saved archive</div><div class="big" id="savedCount">0</div><p>facts in favorites</p></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-head"><h2>Explore by topic</h2><span class="muted">Choose your rabbit hole</span></div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="section"><div class="section-head"><h2>Curated for you</h2><span class="muted" id="resultLabel">All discoveries</span></div><div class="fact-grid" id="facts"></div></div>
+  </section>
+
+  <section id="discover" class="view">
+    <div class="section-head"><h2>Discovery Engine</h2><span class="muted">Press SPACE for a surprise</span></div>
+    <article class="hero-card" style="min-height:330px;margin-bottom:18px">
+      <div class="eyebrow" id="discoverTag">UNKNOWN SECTOR</div>
+      <h1 id="discoverTitle" style="font-size:48px">Ready?</h1>
+      <p id="discoverText">Let ASTRA choose a random fact from its archive.</p>
+      <div class="actions"><button class="btn primary" id="randomBtn">✦ Random discovery</button><button class="btn" id="copyBtn">⧉ Copy</button><button class="btn" id="saveBtn">♡ Save</button></div>
+    </article>
+  </section>
+
+  <section id="favorites" class="view"><div class="section-head"><h2>Favorites</h2><span class="muted">Your personal cosmic archive</span></div><div class="fact-grid" id="favoritesGrid"></div></section>
+  <section id="history" class="view"><div class="section-head"><h2>History</h2><span class="muted">Your recent discoveries</span></div><div class="fact-grid" id="historyGrid"></div></section>
+
+  <section id="stats" class="view">
+    <div class="section-head"><h2>Explorer dashboard</h2><span class="muted">Progress saved locally</span></div>
+    <div class="dashboard">
+      <div class="panel"><h3>Mission stats</h3><div class="stat-row"><span>Discoveries</span><strong id="sDiscoveries">0</strong></div><div class="stat-row"><span>Favorites</span><strong id="sFavorites">0</strong></div><div class="stat-row"><span>Topics explored</span><strong id="sTopics">0</strong></div><div class="stat-row"><span>Current level</span><strong id="sLevel">Novice</strong></div></div>
+      <div class="panel"><h3>Achievements</h3><div class="achievement"><div class="badge">🚀</div><div><strong>First Launch</strong><div class="muted">Discover your first fact</div></div></div><div class="achievement"><div class="badge">★</div><div><strong>Collector</strong><div class="muted">Save 5 favorites</div></div></div><div class="achievement"><div class="badge">∞</div><div><strong>Cosmic Mind</strong><div class="muted">Discover 20 facts</div></div></div></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="modal-box"><div class="modal-head"><h2>Settings</h2><button class="icon-btn" id="closeModal">×</button></div>
+  <div class="setting"><div><strong>Animated stars</strong><div class="muted">Keep the background alive</div></div><button class="switch on" id="starsToggle"><i></i></button></div>
+  <div class="setting"><div><strong>Reset progress</strong><div class="muted">Clear history, favorites and counters</div></div><button class="btn" id="reset">Reset</button></div>
+</div></div>
+
+<script>
+const FACTS=[
+["Cosmos","A day on Venus is longer than a year on Venus.","Venus rotates so slowly that one rotation takes about 243 Earth days, while one orbit takes about 225 Earth days."],
+["Planets","Jupiter is the largest planet in our Solar System.","Jupiter is so large that more than 1,000 Earths could fit inside it by volume."],
+["Stars","The Sun contains almost all the mass in our Solar System.","The Sun accounts for roughly 99.8% of the Solar System's total mass."],
+["Spaceflight","A spacesuit is a miniature spacecraft.","It provides pressure, temperature control, oxygen, communications and protection from the harsh space environment."],
+["Black Holes","Black holes are not cosmic vacuum cleaners.","At a distance, their gravity behaves like the gravity of any other object with the same mass."],
+["Moon","The Moon is slowly moving away from Earth.","Laser measurements show the Moon recedes from Earth by about 3.8 centimeters per year."],
+["Galaxies","The Milky Way is enormous.","Our galaxy is a barred spiral galaxy containing hundreds of billions of stars."],
+["Exoplanets","Thousands of worlds exist beyond our Solar System.","Astronomers have confirmed thousands of exoplanets, with many more candidates awaiting confirmation."],
+["Nebulae","Some nebulae are stellar nurseries.","Dense clouds of gas and dust can collapse under gravity and form new stars."],
+["Mars","Mars has the tallest known volcano in the Solar System.","Olympus Mons rises roughly 22 kilometers above the surrounding plains."],
+["Saturn","Saturn could float in water—if a container were big enough.","Its average density is lower than water, although such a gigantic bathtub is obviously impossible."],
+["Time","Looking into space means looking into the past.","Because light takes time to travel, distant objects are seen as they were when their light began its journey."],
+["Relativity","Gravity can bend light.","Massive objects curve spacetime, causing light to follow curved paths around them."],
+["Stars","A neutron star can be incredibly dense.","A neutron star packs roughly stellar mass into a sphere only around the size of a city."],
+["Earth","Earth is not a perfect sphere.","Its rotation makes it slightly wider around the equator than from pole to pole."],
+["Cosmos","There is no known center of the observable universe.","On large scales, expansion happens throughout space rather than from one ordinary central point."],
+["Moon","The same side of the Moon usually faces Earth.","The Moon is tidally locked, so its rotation period matches its orbital period."],
+["Spaceflight","Astronauts can grow taller in microgravity.","Without Earth's usual compression, the spine can temporarily lengthen by a few centimeters."],
+["Jupiter","Jupiter has a giant storm called the Great Red Spot.","The storm has persisted for centuries and is larger than Earth, though its size changes over time."],
+["Stars","Stars have life cycles.","Their evolution depends strongly on mass, with massive stars living much shorter lives than stars like the Sun."]
+];
+const cats=["All",...new Set(FACTS.map(f=>f[0]))];
+let state=JSON.parse(localStorage.getItem("astraState")||'{"seen":[],"favorites":[],"history":[],"category":"All","stars":true}');
+let current=0;
+
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem("astraState",JSON.stringify(state));renderStats();}
+function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1800)}
+function isFav(i){return state.favorites.includes(i)}
+function factCard(i){
+ const f=FACTS[i]; return `<article class="fact"><button class="heart ${isFav(i)?"saved":""}" onclick="toggleFav(${i})">${isFav(i)?"♥":"♡"}</button><div class="tag">${f[0]}</div><h3>${f[1]}</h3><p>${f[2]}</p></article>`
+}
+function renderFacts(){
+ const q=$("search").value.toLowerCase();
+ let arr=FACTS.map((_,i)=>i).filter(i=>state.category==="All"||FACTS[i][0]===state.category).filter(i=>!q||FACTS[i].join(" ").toLowerCase().includes(q));
+ $("facts").innerHTML=arr.length?arr.map(factCard).join(""):`<div class="empty" style="grid-column:1/-1">No discoveries match that search.</div>`;
+ $("resultLabel").textContent=`${arr.length} discoveries`;
+}
+function renderChips(){
+ $("chips").innerHTML=cats.map(c=>`<button class="chip ${state.category===c?"active":""}" onclick="setCat('${c.replace(/'/g,"\\'")}')">${c}</button>`).join("");
+}
+function setCat(c){state.category=c;renderChips();renderFacts();save()}
+function toggleFav(i){if(isFav(i)){state.favorites=state.favorites.filter(x=>x!==i);toast("Removed from archive")}else{state.favorites.unshift(i);toast("Saved to your archive")}save();renderFacts();renderSpecial();updateCounters()}
+function renderSpecial(){
+ $("favoritesGrid").innerHTML=state.favorites.length?state.favorites.map(factCard).join(""):`<div class="empty" style="grid-column:1/-1">No favorites yet. Save a fact and it will appear here.</div>`;
+ $("historyGrid").innerHTML=state.history.length?state.history.map(factCard).join(""):`<div class="empty" style="grid-column:1/-1">Your discovery trail is empty.</div>`;
+}
+function updateCounters(){$("count").textContent=state.seen.length;$("savedCount").textContent=state.favorites.length}
+function renderStats(){
+ const topics=new Set(state.seen.map(i=>FACTS[i][0])).size, n=state.seen.length;
+ $("sDiscoveries").textContent=n;$("sFavorites").textContent=state.favorites.length;$("sTopics").textContent=topics;$("sLevel").textContent=n>=30?"Cosmic":n>=20?"Expert":n>=10?"Explorer":"Novice";
+}
+function discover(){
+ current=Math.floor(Math.random()*FACTS.length); const f=FACTS[current];
+ $("discoverTag").textContent=f[0].toUpperCase();$("discoverTitle").textContent=f[1];$("discoverText").textContent=f[2];
+ if(!state.seen.includes(current))state.seen.push(current); state.history=[current,...state.history.filter(x=>x!==current)].slice(0,12);
+ save();renderSpecial();updateCounters();toast("New discovery logged ✦");
+}
+function daily(){
+ const d=new Date(); const key=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate(); current=key%FACTS.length; const f=FACTS[current];
+ $("heroTitle").textContent=f[1];$("heroText").textContent=f[2];$("date").textContent=d.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+}
+function copyCurrent(){navigator.clipboard?.writeText(`${FACTS[current][1]} — ${FACTS[current][2]}`);toast("Copied to clipboard")}
+async function shareCurrent(){const text=`${FACTS[current][1]} — ${FACTS[current][2]}`;try{if(navigator.share)await navigator.share({title:"ASTRA Discovery",text});else await navigator.clipboard.writeText(text);toast(navigator.share?"Shared ✦":"Copied for sharing")}catch{}}
+function nav(view){document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===view))}
+function renderAll(){renderChips();renderFacts();renderSpecial();updateCounters();renderStats()}
+$("discoverBtn").onclick=()=>{nav("discover");discover()}
+$("randomBtn").onclick=discover;$("copyBtn").onclick=copyCurrent;$("saveBtn").onclick=()=>toggleFav(current);$("shareDaily").onclick=shareCurrent;
+$("saveDaily").onclick=()=>toggleFav(current);
+$("search").oninput=renderFacts;
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>nav(b.dataset.view));
+$("theme").onclick=()=>document.body.classList.toggle("light");
+$("settings").onclick=()=>$("modal").classList.add("open");$("closeModal").onclick=()=>$("modal").classList.remove("open");
+$("reset").onclick=()=>{if(confirm("Reset all ASTRA progress?")){state={seen:[],favorites:[],history:[],category:"All",stars:true};save();renderAll();toast("Progress reset")}};
+$("starsToggle").onclick=()=>{state.stars=!state.stars;$("starsToggle").classList.toggle("on",state.stars);$("stars").style.display=state.stars?"block":"none";save()};
+window.onkeydown=e=>{if(e.code==="Space"&&document.activeElement.tagName!=="INPUT"){e.preventDefault();nav("discover");discover()} if(e.key==="/"){e.preventDefault();$("search").focus()} if(e.key==="Escape")$("modal").classList.remove("open")};
+daily();renderAll();
+
+const c=$("stars"),ctx=c.getContext("2d");let pts=[];
+function resize(){c.width=innerWidth*devicePixelRatio;c.height=innerHeight*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);pts=Array.from({length:Math.min(240,Math.floor(innerWidth/5))},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.5+.2,v:Math.random()*.25+.03,a:Math.random()*.7+.15}))}
+function animate(){ctx.clearRect(0,0,innerWidth,innerHeight);for(const p of pts){p.y+=p.v;if(p.y>innerHeight)p.y=-2;ctx.globalAlpha=p.a;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle="#fff";ctx.fill()}requestAnimationFrame(animate)}
+addEventListener("resize",resize);resize();animate();
+</script>
+</body>
+</html>
